@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>황금 로또 룰렛 추첨기</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background: radial-gradient(circle at center, #1e1b4b 0%, #09090b 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #fef08a 0%, #ca8a04 50%, #facc15 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gold-border {
+            border-image: linear-gradient(to right, #eab308, #ca8a04, #fef08a) 1;
+        }
+        /* Custom Confetti & Animations */
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(234, 179, 8, 0.5); }
+            50% { box-shadow: 0 0 35px rgba(234, 179, 8, 0.9); }
+        }
+        .glow-effect {
+            animation: pulse-glow 2s infinite;
+        }
+        /* Coin Flip Animation */
+        @keyframes flip-coin {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(1800deg); }
+        }
+        .animate-coin-flip {
+            animation: flip-coin 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-between min-h-screen p-4 sm:p-6">
+
+    <header class="w-full max-w-4xl text-center py-6">
+        <div class="inline-flex items-center justify-center gap-3 bg-amber-500/10 border border-amber-500/30 px-6 py-2 rounded-full mb-3 backdrop-blur-md">
+            <i class="fa-solid fa-crown text-amber-400 text-xl"></i>
+            <span class="text-amber-300 font-bold tracking-wider text-sm sm:text-base">1억 당첨의 기회! 럭키 로또 룰렛</span>
+        </div>
+        <h1 class="text-3xl sm:text-5xl font-extrabold gold-gradient-text tracking-tight mb-2">
+            황금 로또 룰렛 추첨소
+        </h1>
+        <p class="text-slate-400 text-sm sm:text-base">1부터 60 사이의 숫자 중 3개를 고르고 행운의 룰렛을 돌려보세요!</p>
+    </header>
+
+    <main class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-12 gap-6 my-auto">
+        
+        <!-- Left Panel: User Input & Prize Table -->
+        <div class="md:col-span-5 bg-slate-900/80 border border-slate-800 rounded-2xl p-5 sm:p-6 backdrop-blur-xl shadow-2xl flex flex-col justify-between">
+            <div>
+                <h2 class="text-lg font-bold text-amber-400 flex items-center gap-2 mb-4">
+                    <i class="fa-solid fa-ticket"></i> 나의 번호 선택 (1~60)
+                </h2>
+                
+                <div class="grid grid-cols-3 gap-3 mb-5">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">첫 번째 번호</label>
+                        <input type="number" id="num1" min="1" max="60" value="7" class="w-full bg-slate-800 border border-slate-700 text-center text-xl font-bold rounded-xl py-3 text-amber-300 focus:outline-none focus:border-amber-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">두 번째 번호</label>
+                        <input type="number" id="num2" min="1" max="60" value="25" class="w-full bg-slate-800 border border-slate-700 text-center text-xl font-bold rounded-xl py-3 text-amber-300 focus:outline-none focus:border-amber-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">세 번째 번호</label>
+                        <input type="number" id="num3" min="1" max="60" value="42" class="w-full bg-slate-800 border border-slate-700 text-center text-xl font-bold rounded-xl py-3 text-amber-300 focus:outline-none focus:border-amber-500 transition">
+                    </div>
+                </div>
+
+                <div class="flex gap-2 mb-6">
+                    <button onclick="autoRandomize()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-sm font-semibold py-2.5 rounded-xl transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i> 자동 선택
+                    </button>
+                </div>
+
+                <!-- Prize Info Box -->
+                <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 mb-4">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">당첨 안내</h3>
+                    <ul class="space-y-2 text-xs sm:text-sm">
+                        <li class="flex justify-between items-center text-amber-300 font-semibold">
+                            <span><i class="fa-solid fa-medal text-amber-400 mr-1"></i> 1등 (3개 일치)</span>
+                            <span class="bg-amber-500/20 px-2 py-0.5 rounded text-amber-400">1억원</span>
+                        </li>
+                        <li class="flex justify-between items-center text-slate-300">
+                            <span><i class="fa-solid fa-medal text-slate-400 mr-1"></i> 2등 (2개 일치)</span>
+                            <span class="bg-slate-800 px-2 py-0.5 rounded text-slate-300">5천만원</span>
+                        </li>
+                        <li class="flex justify-between items-center text-amber-600">
+                            <span><i class="fa-solid fa-medal text-amber-700 mr-1"></i> 3등 (1개 일치)</span>
+                            <span class="bg-amber-950/50 px-2 py-0.5 rounded text-amber-500">1천만원</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            <button id="spinBtn" onclick="startRoulette()" class="w-full bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold text-lg py-4 rounded-xl shadow-lg glow-effect transition transform active:scale-95 flex items-center justify-center gap-3">
+                <i class="fa-solid fa-rotate text-xl animate-spin-slow"></i> 룰렛 돌리기!
+            </button>
+        </div>
+
+        <!-- Right Panel: Roulette Visualizer & Results -->
+        <div class="md:col-span-7 bg-slate-900/80 border border-slate-800 rounded-2xl p-6 backdrop-blur-xl shadow-2xl flex flex-col items-center justify-center text-center relative overflow-hidden">
+            
+            <!-- Result Display Header -->
+            <div id="statusMessage" class="text-slate-400 text-sm font-semibold mb-6">
+                번호를 입력하고 추첨을 시작하세요!
+            </div>
+
+            <!-- Roulette Number Slots -->
+            <div class="grid grid-cols-3 gap-4 w-full max-w-md mb-8">
+                <div class="bg-slate-950 border-2 border-amber-500/40 rounded-2xl h-28 sm:h-32 flex flex-col items-center justify-center shadow-inner relative overflow-hidden">
+                    <span class="text-xs text-amber-400 font-bold mb-1 uppercase">1번볼</span>
+                    <span id="slot1" class="text-4xl sm:text-5xl font-black text-white transition-all transform duration-300">?</span>
+                </div>
+                <div class="bg-slate-950 border-2 border-amber-500/40 rounded-2xl h-28 sm:h-32 flex flex-col items-center justify-center shadow-inner relative overflow-hidden">
+                    <span class="text-xs text-amber-400 font-bold mb-1 uppercase">2번볼</span>
+                    <span id="slot2" class="text-4xl sm:text-5xl font-black text-white transition-all transform duration-300">?</span>
+                </div>
+                <div class="bg-slate-950 border-2 border-amber-500/40 rounded-2xl h-28 sm:h-32 flex flex-col items-center justify-center shadow-inner relative overflow-hidden">
+                    <span class="text-xs text-amber-400 font-bold mb-1 uppercase">3번볼</span>
+                    <span id="slot3" class="text-4xl sm:text-5xl font-black text-white transition-all transform duration-300">?</span>
+                </div>
+            </div>
+
+            <!-- Detailed Match Report Box -->
+            <div id="resultCard" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl p-4 hidden animate-fade-in">
+                <div id="prizeTitle" class="text-xl font-extrabold text-amber-400 mb-1"></div>
+                <div id="prizeDesc" class="text-sm text-slate-300 mb-3"></div>
+                <div class="inline-block bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-xs text-slate-300">
+                    일치한 번호 개수: <span id="matchCount" class="font-bold text-amber-400">0개</span>
+                </div>
+            </div>
+
+            <!-- Coin Toss Bonus Section (Initially Hidden) -->
+            <div id="coinBonusSection" class="w-full bg-gradient-to-br from-indigo-950/70 to-slate-950 border border-indigo-500/30 rounded-xl p-5 mt-4 hidden shadow-xl animate-fade-in">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-2xl" id="faceEmoji">😢</span>
+                        <h4 class="text-sm sm:text-base font-bold text-indigo-300">패자의 기사회생! 동전 던지기 찬스</h4>
+                    </div>
+                    <span class="text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-semibold">확률 50%</span>
+                </div>
+                <p class="text-xs text-slate-300 mb-4" id="coinStatusText">아쉽게 낙첨되셨네요! 앞면/뒷면을 맞추면 <span class="text-amber-400 font-bold">1,000원</span>을 드립니다!</p>
+                
+                <div id="coinButtons" class="flex gap-3 justify-center mb-3">
+                    <button onclick="flipCoin('heads')" class="flex-1 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold py-2.5 px-4 rounded-xl shadow transition transform active:scale-95 flex items-center justify-center gap-2 text-sm">
+                        <i class="fa-solid fa-coins text-amber-300"></i> 앞면 (Heads)
+                    </button>
+                    <button onclick="flipCoin('tails')" class="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-2.5 px-4 rounded-xl shadow transition transform active:scale-95 flex items-center justify-center gap-2 text-sm">
+                        <i class="fa-solid fa-coins text-purple-300"></i> 뒷면 (Tails)
+                    </button>
+                </div>
+
+                <!-- Animated Coin Container -->
+                <div id="coinAnimationContainer" class="flex flex-col items-center justify-center my-3 hidden">
+                    <div id="spinningCoin" class="w-20 h-20 bg-gradient-to-tr from-amber-400 via-yellow-300 to-amber-500 rounded-full border-4 border-amber-600 shadow-2xl flex items-center justify-center text-slate-900 font-black text-xs transition-transform transform style-preserve-3d">
+                        <div class="flex flex-col items-center">
+                            <i class="fa-solid fa-won-sign text-lg"></i>
+                            <span class="text-[10px]">100원</span>
+                        </div>
+                    </div>
+                    <span class="text-xs text-amber-400 mt-2 font-semibold animate-pulse" id="coinSpinStatus">동전이 돌아가는 중...</span>
+                </div>
+
+                <div id="coinResultBox" class="text-center text-sm font-bold hidden py-2 rounded-lg bg-slate-900/80 border border-slate-700"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="w-full max-w-4xl text-center py-4 text-xs text-slate-500">
+        &copy; 2026 Golden Lotto Roulette Simulator. 가상의 행운 추첨 게임입니다.
+    </footer>
+
+    <div id="customModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-slate-900 border border-amber-500/40 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl transform scale-95 transition-all duration-300" id="modalContent">
+            <div id="modalIcon" class="text-5xl mb-4 text-amber-400"></div>
+            <h3 id="modalTitle" class="text-2xl font-bold text-white mb-2"></h3>
+            <p id="modalMessage" class="text-slate-300 text-sm mb-6"></p>
+            <button onclick="closeModal()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl transition">확인</button>
+        </div>
+    </div>
+
+    <script>
+        // 자동 번호 선택 함수
+        function autoRandomize() {
+            let nums = [];
+            while(nums.length < 3) {
+                let r = Math.floor(Math.random() * 60) + 1;
+                if(!nums.includes(r)) nums.push(r);
+            }
+            nums.sort((a, b) => a - b);
+            document.getElementById('num1').value = nums[0];
+            document.getElementById('num2').value = nums[1];
+            document.getElementById('num3').value = nums[2];
+        }
+
+        // 모달 표시 함수 (alert 대안)
+        function showModal(title, message, iconClass) {
+            const modal = document.getElementById('customModal');
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMessage').innerText = message;
+            document.getElementById('modalIcon').innerHTML = `<i class="${iconClass}"></i>`;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('customModal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+
+        // 룰렛 추첨 시작 함수
+        function startRoulette() {
+            // 유저 번호 검증
+            let n1 = parseInt(document.getElementById('num1').value);
+            let n2 = parseInt(document.getElementById('num2').value);
+            let n3 = parseInt(document.getElementById('num3').value);
+
+            const userInputs = [n1, n2, n3];
+
+            // 유효성 검사
+            for (let num of userInputs) {
+                if (isNaN(num) || num < 1 || num > 60) {
+                    showModal("입력 오류", "1부터 60 사이의 숫자만 입력해주세요!", "fa-solid fa-triangle-exclamation text-amber-500");
+                    return;
+                }
+            }
+
+            // 중복 번호 검사
+            if (new Set(userInputs).size !== 3) {
+                showModal("중복 오류", "서로 다른 3개의 숫자를 입력해주세요!", "fa-solid fa-circle-exclamation text-amber-500");
+                return;
+            }
+
+            const spinBtn = document.getElementById('spinBtn');
+            spinBtn.disabled = true;
+            spinBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            const statusMsg = document.getElementById('statusMessage');
+            statusMsg.innerHTML = '<span class="text-amber-400 animate-pulse font-bold"><i class="fa-solid fa-spinner animate-spin mr-2"></i> 행운의 번호 룰렛이 돌아가는 중...</span>';
+
+            document.getElementById('resultCard').classList.add('hidden');
+            document.getElementById('coinBonusSection').classList.add('hidden'); // 동전 던지기 초기화
+
+            let slot1 = document.getElementById('slot1');
+            let slot2 = document.getElementById('slot2');
+            let slot3 = document.getElementById('slot3');
+
+            // 당첨 번호 무작위 생성 (1~60 중 3개)
+            let winningNums = [];
+            while(winningNums.length < 3) {
+                let r = Math.floor(Math.random() * 60) + 1;
+                if(!winningNums.includes(r)) winningNums.push(r);
+            }
+            winningNums.sort((a, b) => a - b);
+
+            let counter = 0;
+            let interval = setInterval(() => {
+                slot1.innerText = Math.floor(Math.random() * 60) + 1;
+                slot2.innerText = Math.floor(Math.random() * 60) + 1;
+                slot3.innerText = Math.floor(Math.random() * 60) + 1;
+                counter++;
+
+                if (counter > 25) {
+                    clearInterval(interval);
+                    
+                    // 최종 번호 반영
+                    slot1.innerText = winningNums[0];
+                    slot2.innerText = winningNums[1];
+                    slot3.innerText = winningNums[2];
+
+                    // 결과 판정
+                    evaluateResults(userInputs, winningNums);
+
+                    spinBtn.disabled = false;
+                    spinBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            }, 80);
+        }
+
+        // 결과 평가 함수
+        function evaluateResults(user, winning) {
+            let matchCount = user.filter(n => winning.includes(n)).length;
+            const statusMsg = document.getElementById('statusMessage');
+            const resultCard = document.getElementById('resultCard');
+            const prizeTitle = document.getElementById('prizeTitle');
+            const prizeDesc = document.getElementById('prizeDesc');
+            const matchCountSpan = document.getElementById('matchCount');
+            const coinBonusSection = document.getElementById('coinBonusSection');
+
+            matchCountSpan.innerText = `${matchCount}개`;
+            resultCard.classList.remove('hidden');
+
+            if (matchCount === 3) {
+                statusMsg.innerHTML = '<span class="text-emerald-400 font-extrabold text-lg">🎉 축하합니다! 1등 당첨! 🎉</span>';
+                prizeTitle.innerHTML = "🥇 1등 당첨 (3개 일치)";
+                prizeDesc.innerHTML = "상금 <span class='text-amber-400 font-bold'>1억원</span>에 당첨되셨습니다!";
+                showModal("1등 당첨!", "축하합니다! 1억원의 주인공이 되셨습니다!", "fa-solid fa-trophy text-amber-400");
+            } else if (matchCount === 2) {
+                statusMsg.innerHTML = '<span class="text-amber-400 font-extrabold text-lg">🥈 아쉽지만 2등 당첨! 🥈</span>';
+                prizeTitle.innerHTML = "🥈 2등 당첨 (2개 일치)";
+                prizeDesc.innerHTML = "상금 <span class='text-amber-400 font-bold'>5천만원</span>에 당첨되셨습니다!";
+                showModal("2등 당첨!", "축하합니다! 5천만원에 당첨되셨습니다!", "fa-solid fa-medal text-amber-300");
+            } else if (matchCount === 1) {
+                statusMsg.innerHTML = '<span class="text-sky-400 font-extrabold text-lg">🥉 3등 당첨! 🥉</span>';
+                prizeTitle.innerHTML = "🥉 3등 당첨 (1개 일치)";
+                prizeDesc.innerHTML = "상금 <span class='text-amber-400 font-bold'>1천만원</span>에 당첨되셨습니다!";
+                showModal("3등 당첨!", "축하합니다! 1천만원에 당첨되셨습니다!", "fa-solid, fa-award text-amber-500");
+            } else {
+                statusMsg.innerHTML = '<span class="text-rose-400 font-semibold">아쉽게도 일치하는 번호가 없습니다. 하지만 기회가 남았습니다!</span>';
+                prizeTitle.innerHTML = "❌ 낙첨";
+                prizeDesc.innerHTML = "일치하는 번호가 없습니다. 아래 동전 던지기에 도전해보세요!";
+                
+                // 낙인 경우 동전 던지기 섹션 활성화 및 상태 초기화
+                document.getElementById('faceEmoji').innerText = '😭';
+                document.getElementById('coinStatusText').innerHTML = '아쉽게 낙첨되셨네요! 앞면/뒷면을 맞추면 <span class="text-amber-400 font-bold">1,000원</span>을 드립니다!';
+                document.getElementById('coinButtons').classList.remove('hidden');
+                document.getElementById('coinResultBox').classList.add('hidden');
+                coinBonusSection.classList.remove('hidden');
+            }
+        }
+
+        // 동전 던지기 로직
+        function flipCoin(userChoice) {
+            const coinResultBox = document.getElementById('coinResultBox');
+            const coinButtons = document.getElementById('coinButtons');
+            const faceEmoji = document.getElementById('faceEmoji');
+            const coinStatusText = document.getElementById('coinStatusText');
+            const coinAnimationContainer = document.getElementById('coinAnimationContainer');
+            const spinningCoin = document.getElementById('spinningCoin');
+            const coinSpinStatus = document.getElementById('coinSpinStatus');
+
+            // 버튼 숨기고 애니메이션 영역 표시
+            coinButtons.classList.add('hidden');
+            coinResultBox.classList.add('hidden');
+            coinAnimationContainer.classList.remove('hidden');
+
+            const choiceName = userChoice === 'heads' ? '앞면' : '뒷면';
+            coinSpinStatus.innerText = `${choiceName} 선택! 동전 회전 중...`;
+
+            // 애니메이션 클래스 재적용
+            spinningCoin.classList.remove('animate-coin-flip');
+            void spinningCoin.offsetWidth; // Trigger reflow
+            spinningCoin.classList.add('animate-coin-flip');
+
+            // 동전 결과 무작위 생성 (heads 또는 tails)
+            const actualFlip = Math.random() < 0.5 ? 'heads' : 'tails';
+            const isMatch = (userChoice === actualFlip);
+
+            // 1.2초 애니메이션 후 결과 출력
+            setTimeout(() => {
+                coinAnimationContainer.classList.add('hidden');
+                coinResultBox.classList.remove('hidden');
+
+                const actualName = actualFlip === 'heads' ? '앞면' : '뒷면';
+
+                // 동전 표면 결과 반영 갱신
+                if (actualFlip === 'heads') {
+                    spinningCoin.innerHTML = '<div class="flex flex-col items-center"><i class="fa-solid fa-crown text-sm"></i><span class="text-[10px]">앞면</span></div>';
+                } else {
+                    spinningCoin.innerHTML = '<div class="flex flex-col items-center"><i class="fa-solid fa-shield text-sm"></i><span class="text-[10px]">뒷면</span></div>';
+                }
+
+                if (isMatch) {
+                    faceEmoji.innerText = '🥳';
+                    coinStatusText.innerHTML = `선택하신 <span class="text-amber-300 font-bold">${choiceName}</span>! 동전 결과는 <span class="text-emerald-400 font-bold">${actualName}</span>!`;
+                    coinResultBox.className = "text-center text-sm font-bold py-2 rounded-lg bg-emerald-950/80 border border-emerald-500/50 text-emerald-300 animate-bounce";
+                    coinResultBox.innerHTML = "✨ 성공! 1,000원 획득하셨습니다! 🎉";
+                } else {
+                    faceEmoji.innerText = '🥺';
+                    coinStatusText.innerHTML = `선택하신 <span class="text-amber-300 font-bold">${choiceName}</span>... 하지만 동전 결과는 <span class="text-rose-400 font-bold">${actualName}</span>!`;
+                    coinResultBox.className = "text-center text-sm font-bold py-2 rounded-lg bg-rose-950/80 border border-rose-500/50 text-rose-300";
+                    coinResultBox.innerHTML = "💦 아쉽네여~~~ 다음 기회에 도전하세요!";
+                }
+            }, 1200);
+        }
+    </script>
+</body>
+</html>
